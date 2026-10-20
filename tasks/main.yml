@@ -1,0 +1,17 @@
+---
+- name: Download Utilvo EdgeShield Apache 2.4 firewall configuration
+  ansible.builtin.get_url:
+    url: "https://utilvo.com/edge-shield/apache-bot-shield.conf"
+    dest: "{{ '/etc/apache2/conf-available/utilvo-edge-shield.conf' if ansible_os_family == 'Debian' else '/etc/httpd/conf.d/utilvo-edge-shield.conf' }}"
+    mode: "0644"
+  notify: Reload Apache 2.4
+
+- name: Enable required Apache 2.4 modules on Debian/Ubuntu
+  ansible.builtin.command: "a2enmod remoteip setenvif authz_core rewrite"
+  when: ansible_os_family == 'Debian'
+  changed_when: false
+
+- name: Enable utilvo-edge-shield conf on Debian/Ubuntu
+  ansible.builtin.command: "a2enconf utilvo-edge-shield"
+  when: ansible_os_family == 'Debian'
+  changed_when: false
